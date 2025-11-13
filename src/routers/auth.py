@@ -9,11 +9,7 @@ from src.schemas.auth import AuthResponse, Token, LoginRequest
 from src.schemas.user import UserCreate
 from src.services.auth import authenticate_user, create_access_token
 from src.config import ACCESS_TOKEN_EXPIRE_MINUTES
-from slowapi import Limiter
-from slowapi.util import get_remote_address
-
-
-limiter = Limiter(key_func=get_remote_address)
+from src.rate_limiter import limiter
 
 router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 
@@ -21,7 +17,7 @@ router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
             response_model=Token,
             summary="Get access token",
             description="Obtain an access token by providing valid user credentials."
-                        "Primarily intended for internal use and Swagger UI documentation. "
+                        "Primarily intended for internal use and Swagger UI documentation."
                         "Mobile clients should use the /login endpoint instead.",
 )
 @limiter.limit("10/minute")

@@ -5,13 +5,11 @@ from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from src.routers import auth, users
 from src.database.connection import create_db_and_tables, get_db
-from src.database.models import UserDB  # Ensure models are imported
 from src.config import ENV
 from sqlmodel import Session, literal, select
-from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
+from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-from src.routers.auth import limiter
+from src.rate_limiter import limiter
 import os
 
 @asynccontextmanager
@@ -41,7 +39,6 @@ if ENV == "production":
         print(f"✓ Trusted host middleware enabled: {allowed_hosts}")
 
 # Rate Limiting
-limiter = Limiter(key_func=get_remote_address, default_limits=["100/minute"])
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler) # type: ignore[arg-type]
 

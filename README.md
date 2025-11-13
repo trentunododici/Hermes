@@ -155,7 +155,7 @@ uv sync
 uv run uvicorn src.main:app --reload
 ```
 
-## Contribuiting
+## Contributing
 
 When contributing, please ensure:
 

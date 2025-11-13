@@ -1,7 +1,5 @@
-import os
 from sqlmodel import create_engine, Session, SQLModel
 from typing import Generator
-from dotenv import load_dotenv
 from src.config import DATABASE_URL, ENV
 
 if not DATABASE_URL:
@@ -13,7 +11,7 @@ connect_args = {"check_same_thread": False} if "sqlite" in DATABASE_URL else {}
 
 engine = create_engine(
     DATABASE_URL,
-    echo=os.getenv("ENV", "production") == "development",
+    echo=ENV == "development",
     pool_size=5,
     max_overflow=10,
     pool_pre_ping=True,

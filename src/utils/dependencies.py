@@ -22,7 +22,13 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM], audience="hermes-mobile-app")
+        payload = jwt.decode(
+            token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM],
+            audience="hermes-mobile-app",
+            issuer="hermes-api"
+        )
         uuid_str: str = payload.get("sub")
         if uuid_str is None:
             raise credentials_exception
@@ -32,7 +38,7 @@ async def get_current_user(
         except ValueError:
             raise credentials_exception
 
-    except InvalidTokenError as e:
+    except InvalidTokenError:
         raise credentials_exception
 
     user = get_user_by_uuid(session, uuid=uuid_str)
