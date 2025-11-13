@@ -14,3 +14,7 @@ ENV = os.getenv("ENV", "development")
 SECRET_KEY = get_required_env_var("SECRET_KEY")
 ALGORITHM = os.getenv("ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
+
+# JWT Claims
+JWT_ISSUER = os.getenv("JWT_ISSUER", "hermes-api")
+JWT_AUDIENCE = os.getenv("JWT_AUDIENCE", "hermes-mobile-app")

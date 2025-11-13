@@ -5,7 +5,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 from sqlmodel import Session
-from src.config import SECRET_KEY, ALGORITHM
+from src.config import SECRET_KEY, ALGORITHM, JWT_ISSUER, JWT_AUDIENCE
 from src.schemas.user import User
 from src.services.user import get_user_by_uuid
 from src.database.connection import get_db
@@ -26,8 +26,8 @@ async def get_current_user(
             token,
             SECRET_KEY,
             algorithms=[ALGORITHM],
-            audience="hermes-mobile-app",
-            issuer="hermes-api"
+            audience=JWT_AUDIENCE,
+            issuer=JWT_ISSUER
         )
         uuid_str: str = payload.get("sub")
         if uuid_str is None:

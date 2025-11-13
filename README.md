@@ -83,10 +83,10 @@ On first startup, FastAPI will automatically create all database tables.
 - `GET /health` - Health check for API and database
 - `GET /docs` - Interactive Swagger UI documentation
 - `GET /redoc` - Alternative ReDoc documentation
-- `POST /register` - Register new user
-- `POST /login` - User login
-- `POST /token` - Get access token (OAuth2)
-- `GET /users/me` - Current user information (requires authentication)
+- `POST /api/v1/auth/register` - Register new user
+- `POST /api/v1/auth/login` - User login
+- `POST /api/v1/auth/token` - Get access token (OAuth2)
+- `GET /api/v1/users/me` - Current user information (requires authentication)
 
 ## Development
 

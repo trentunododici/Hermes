@@ -1,8 +1,9 @@
 from datetime import datetime, timedelta, timezone
 import jwt
 from sqlmodel import Session
-from src.config import SECRET_KEY, ALGORITHM
+from src.config import SECRET_KEY, ALGORITHM, JWT_ISSUER, JWT_AUDIENCE
 from src.utils.security import verify_password
+from src.utils.validators import normalize_username
 from src.services.user import get_user
 from src.schemas.user import User
 
@@ -11,8 +12,13 @@ def authenticate_user(db: Session, username: str, password: str) -> User | None:
     Authenticate user and return User WITHOUT password.
     Implements timing attack mitigation by always performing password verification,
     regardless of whether the user exists or not.
+    Normalizes username to ensure consistent behavior across /login and /token endpoints.
     """
-    user_with_password = get_user(db, username)
+    try:
+        normalized_username = normalize_username(username)
+        user_with_password = get_user(db, normalized_username)
+    except ValueError:
+        user_with_password = None
 
     # Use realistic dummy hash if user doesn't exist to maintain constant timing
     # This prevents attackers from distinguishing "user not found" vs "wrong password"
@@ -42,11 +48,10 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
     else:
         expire = now + timedelta(minutes=15)
     to_encode.update({
-        "sub": data.get("sub"),
         "exp": expire,
         "iat": now,
-        "iss": "hermes-api",
-        "aud": "hermes-mobile-app"
+        "iss": JWT_ISSUER,
+        "aud": JWT_AUDIENCE
         })
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt

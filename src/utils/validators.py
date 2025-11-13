@@ -1,5 +1,14 @@
 import re
 
+def normalize_username(value: str) -> str:
+    value = value.lower().strip()
+
+    if not value:
+        raise ValueError("Username cannot be empty")
+    if len(value) < 3 or len(value) > 50:
+        raise ValueError("Username must be between 3 and 50 characters")
+    return value
+
 def validate_username(value: str) -> str:
     value = normalize_username(value)
 
@@ -25,11 +34,3 @@ def validate_password(value: str) -> str:
         raise ValueError('Password must contain at least one special character')
     return value
 
-def normalize_username(value: str) -> str:
-    value = value.lower().strip()
-
-    if not value:
-        raise ValueError("Username cannot be empty")
-    if len(value) < 3 or len(value) > 50:
-        raise ValueError("Username must be between 3 and 50 characters")
-    return value
