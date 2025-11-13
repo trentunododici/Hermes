@@ -36,10 +36,10 @@ async def get_current_user(
         try:
             uuid_lib.UUID(uuid_str)
         except ValueError:
-            raise credentials_exception
+            raise credentials_exception from None
 
     except InvalidTokenError:
-        raise credentials_exception
+        raise credentials_exception from None
 
     user = get_user_by_uuid(session, uuid=uuid_str)
     if user is None:
