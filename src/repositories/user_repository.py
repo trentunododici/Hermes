@@ -1,6 +1,7 @@
 from sqlmodel import Session, select
 from src.database.models import UserDB
 from typing import Optional
+from datetime import datetime, timezone
 
 class UserRepository:
     """Repository for CRUD operations on users"""
@@ -40,6 +41,7 @@ class UserRepository:
     @staticmethod
     def update(db: Session, user: UserDB) -> UserDB:
         """Update an existing user"""
+        user.updated_at = datetime.now(timezone.utc)
         db.add(user)
         db.commit()
         db.refresh(user)
