@@ -108,9 +108,85 @@ uv run ruff check src/
 
 ### Testing
 
+The project includes a comprehensive test suite with both unit and integration tests.
+
+#### Running Tests Locally
+
 ```bash
+# Run all tests (automatically starts test database)
 uv run pytest
+
+# Run with verbose output
+uv run pytest -v
+
+# Run specific test file
+uv run pytest tests/test_auth.py
+
+# Run specific test class
+uv run pytest tests/test_auth.py::TestLogin
+
+# Run only unit tests
+uv run pytest tests/unit/
 ```
+
+The test suite automatically:
+1. Starts a PostgreSQL container via `docker-compose.test.yaml` (port 5433)
+2. Creates test database and tables
+3. Runs all tests with transaction isolation
+4. Stops and removes the container
+
+#### Test Structure
+
+```text
+tests/
+├── conftest.py          # Shared fixtures
+├── test_config.py       # Test environment variables
+├── test_auth.py         # Authentication endpoint tests
+├── test_users.py        # User endpoint tests
+└── unit/                # Unit tests
+    ├── test_security.py
+    ├── test_validators.py
+    └── ...
+```
+
+#### Manual Test Database Management
+
+```bash
+# Start test database manually
+docker-compose -f docker-compose.test.yaml up -d
+
+# Stop and remove test database
+docker-compose -f docker-compose.test.yaml down -v
+```
+
+## CI/CD
+
+The project uses **GitHub Actions** for continuous integration. Tests run automatically on every push to `main` and on pull requests.
+
+### Workflow Features
+
+- **Fast setup** with [uv](https://docs.astral.sh/uv/)
+- **PostgreSQL service container** (no docker-compose needed)
+- **Parallel test execution**
+- **Linting** with ruff
+
+### Build Status
+
+Tests run automatically when you:
+- Push to `main` branch
+- Open a pull request to `main`
+
+View test results in the **Actions** tab on GitHub.
+
+### Running CI Locally
+
+To simulate CI environment locally:
+
+```bash
+CI=true uv run pytest tests/ -v
+```
+
+This skips docker-compose (useful if you already have the test database running).
 
 ## Docker Commands
 
