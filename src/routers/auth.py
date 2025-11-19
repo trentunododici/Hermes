@@ -24,7 +24,7 @@ router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 )
 @limiter.limit("10/minute")
 async def get_access_token(
-    request: Request,
+    request: Request, # noqa: ARG001
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     session: Session = Depends(get_db)
 ) -> Token:
@@ -60,9 +60,9 @@ async def get_access_token(
 )
 @limiter.limit("10/minute")
 async def login(
-    request: Request,
+    request: Request, # noqa: ARG001
     credentials: LoginRequest,
-    session: Session = Depends(get_db)
+    session: Session = Depends(get_db) # noqa: B008
 ) -> AuthResponse:
     user = authenticate_user(session, credentials.username, credentials.password)
     if not user:
@@ -107,9 +107,9 @@ async def login(
 )
 @limiter.limit("10/hour")
 async def register(
-    request: Request,
+    request: Request, # noqa: ARG001
     user_create: UserCreate,
-    session: Session = Depends(get_db),
+    session: Session = Depends(get_db), # noqa: B008
 ) -> AuthResponse:
     user = add_user(session=session, **user_create.model_dump())
     if not user:
@@ -153,9 +153,9 @@ async def register(
 )
 @limiter.limit("10/minute")
 async def refresh_token_endpoint(
-    request: Request,
+    request: Request, # noqa: ARG001
     refresh_request: RefreshRequest,
-    session: Session = Depends(get_db),
+    session: Session = Depends(get_db), # noqa: B008
 ) -> Token:
     result = verify_refresh_token(session, refresh_request.refresh_token)
     if not result:
@@ -166,7 +166,13 @@ async def refresh_token_endpoint(
         )
     user, old_jti = result
 
-    RefreshTokenRepository.revoke_by_jti(session, old_jti)
+    if not RefreshTokenRepository.revoke_by_jti(session, old_jti):
+        # Token was already revoked (e.g., race or prior logout); treat as invalid
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired refresh token",
+            headers={"WWW-Authenticate": "bearer"},
+        )
 
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     refresh_token_expires = timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
@@ -202,9 +208,9 @@ async def refresh_token_endpoint(
 )
 @limiter.limit("10/minute")
 async def logout(
-    request: Request,
+    request: Request, # noqa: ARG001
     refresh_request: RefreshRequest,
-    session: Session = Depends(get_db),
+    session: Session = Depends(get_db), # noqa: B008
 ) -> MessageResponse:
     # Verify refresh token is valid
     result = verify_refresh_token(session, refresh_request.refresh_token)

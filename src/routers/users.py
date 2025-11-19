@@ -28,7 +28,12 @@ async def deactivate_current_user(
     permanent: bool = False # Query parameter to indicate permanent deletion
 ) -> dict:
     user_db = UserRepository.get_by_uuid(session, current_user.uuid)
-    assert user_db is not None # Guaranteed by get_current_active_user
+    # Should be impossible in normal flow, but fail clearly if it happens
+    if user_db is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
 
     if permanent:
         # Hard delete

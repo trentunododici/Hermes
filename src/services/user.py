@@ -60,5 +60,7 @@ def add_user(
     
 def deactivate_user(session: Session, user: UserDB) -> UserDB:
     """Deactivate an existing user account"""
+    if user.disabled:
+        return user  # Skip Db write if already disabled
     user.disabled = True
     return UserRepository.update(session, user)

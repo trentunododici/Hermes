@@ -118,6 +118,10 @@ def verify_refresh_token(db: Session, token: str) -> tuple[User, str] | None:
         token_record = RefreshTokenRepository.get_valid_token_by_jti(db, jti)
         if not token_record:
             return None
+        
+        # Ensure the DB record belongs to the same user as the JWT subject
+        if token_record.user_uuid != user_uuid:
+            return None
 
         # Verify token hash matches (prevents token theft from DB)
         token_hash_calculated = hash_token(token)
