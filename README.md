@@ -137,7 +137,7 @@ The test suite automatically:
 
 #### Test Structure
 
-```
+```text
 tests/
 ├── conftest.py          # Shared fixtures
 ├── test_config.py       # Test environment variables

@@ -5,7 +5,7 @@ services:
     environment:
       POSTGRES_DB: hermes_test
       POSTGRES_USER: hermes_user
-      POSTGRES_PASSWORD: password
+      POSTGRES_PASSWORD: test_password
     ports:
       - "5433:5432"
     healthcheck:

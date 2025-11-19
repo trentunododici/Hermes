@@ -15,8 +15,8 @@ jobs:
         image: postgres:16
         env:
           POSTGRES_DB: hermes_test
-          POSTGRES_USER: hermes_user
-          POSTGRES_PASSWORD: password
+          POSTGRES_USER: ${{ secrets.TEST_DB_USER || 'hermes_user' }}
+          POSTGRES_PASSWORD: ${{ secrets.TEST_DB_PASSWORD || 'test_password' }}
         ports:
           - 5433:5432
         options: >-
@@ -41,9 +41,9 @@ jobs:
       - name: Run tests
         env:
           ENV: testing
-          DATABASE_URL: postgresql://hermes_user:password@localhost:5433/hermes_test
-          SECRET_KEY: test_secret_key_ci
-          REFRESH_SECRET_KEY: test_refresh_secret_key_ci
+          DATABASE_URL: postgresql://${{ secrets.TEST_DB_USER || 'hermes_user' }}:${{ secrets.TEST_DB_PASSWORD || 'test_password' }}@localhost:5433/hermes_test
+          SECRET_KEY: ${{ secrets.TEST_SECRET_KEY || 'test_secret_key_fallback' }}
+          REFRESH_SECRET_KEY: ${{ secrets.TEST_REFRESH_SECRET_KEY || 'test_refresh_secret_key_fallback' }}
           ALGORITHM: HS256
           ACCESS_TOKEN_EXPIRE_MINUTES: "15"
           REFRESH_TOKEN_EXPIRE_DAYS: "7"

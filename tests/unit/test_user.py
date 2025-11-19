@@ -74,7 +74,7 @@ class TestGetUserByUuid:
         assert result is not None
         assert isinstance(result, User)
         assert result.uuid == "test-uuid"
-        assert not hasattr(result, 'hashed_password') or result.model_fields.get('hashed_password') is None
+        assert 'hashed_password' not in result.model_dump()
         mock_repo.get_by_uuid.assert_called_once_with(mock_db, "test-uuid")
 
     @patch('src.services.user.UserRepository')
