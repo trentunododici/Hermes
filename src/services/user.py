@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from src.database.models import UserDB
 from src.repositories.user_repository import UserRepository
 from src.utils.security import get_password_hash
@@ -23,8 +24,10 @@ def add_user(
         session: Session,
         username: str,
         email: str,
-        full_name: str,
-        password: str
+        first_name: str,
+        last_name: str,
+        password: str,
+        created_at: datetime | None = None
     ) -> UserDB | None:
     """
     Create a new user in the database.
@@ -34,13 +37,18 @@ def add_user(
     preventing race conditions through database-level enforcement.
     """
     try:
+        if created_at is None:
+            created_at = datetime.now(timezone.utc)
+
         hashed_password = get_password_hash(password)
         db_user = UserDB(
             username=username,
             email=email,
-            full_name=full_name,
+            first_name=first_name,
+            last_name=last_name,
             hashed_password=hashed_password,
-            disabled=False
+            disabled=False,
+            created_at=created_at
         )
 
         return UserRepository.create(session, db_user)
@@ -49,3 +57,10 @@ def add_user(
         # Rollback is handled automatically by SQLModel
         session.rollback()
         return None
+    
+def deactivate_user(session: Session, user: UserDB) -> UserDB:
+    """Deactivate an existing user account"""
+    if user.disabled:
+        return user  # Skip Db write if already disabled
+    user.disabled = True
+    return UserRepository.update(session, user)

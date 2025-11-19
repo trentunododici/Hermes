@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr, field_validator
 from typing import Optional
+from datetime import datetime
 
 from src.utils.validators import validate_password, validate_username
 
@@ -7,7 +8,8 @@ class UserCreate(BaseModel):
     """Schema for creating a new user (includes password and validations)"""
     username: str
     email: EmailStr
-    full_name: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
     password: str
 
     @field_validator('username')
@@ -26,9 +28,12 @@ class UserInDB(BaseModel):
     uuid: str
     username: str
     email: str
-    full_name: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
     hashed_password: str
     disabled: bool
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
         from_attributes = True
@@ -39,8 +44,11 @@ class User(BaseModel):
     uuid: str
     username: str
     email: str
-    full_name: Optional[str] = None
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
     disabled: bool
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
         from_attributes = True
