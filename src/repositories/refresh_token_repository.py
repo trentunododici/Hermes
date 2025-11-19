@@ -2,7 +2,7 @@ from sqlmodel import Session, col, select
 from src.database.models import RefreshTokenDB
 from typing import Optional
 from datetime import datetime, timezone
-from sqlalchemy import func
+from sqlalchemy import func, update, delete
 
 class RefreshTokenRepository:
     """Repository for CRUD operations on refresh tokens"""
@@ -63,36 +63,25 @@ class RefreshTokenRepository:
     @staticmethod
     def revoke_all_for_user(db: Session, user_uuid: str) -> int:
         """Revoke all refresh tokens for a specific user. Returns the count of revoked tokens."""
-        statement = select(RefreshTokenDB).where(
-            RefreshTokenDB.user_uuid == user_uuid,
-            col(RefreshTokenDB.revoked).is_(False)
+        now = datetime.now(timezone.utc)
+        statement = (
+            update(RefreshTokenDB)
+            .where(col(RefreshTokenDB.user_uuid) == user_uuid)
+            .where(col(RefreshTokenDB.revoked).is_(False))
+            .values(revoked=True, revoked_at=now)        
         )
-        tokens = db.exec(statement).all()
-        
-        revoked_count = 0
-        for token in tokens:
-            token.revoked = True
-            token.revoked_at = datetime.now(timezone.utc)
-            db.add(token)
-            revoked_count += 1
+        result = db.exec(statement)
         db.commit()
-        return revoked_count
+        return result.rowcount
     
     @staticmethod
     def delete_expired_tokens(db: Session) -> int:
         """Delete all expired refresh tokens from the database. Returns the count of deleted tokens."""
         now = datetime.now(timezone.utc)
-        statement = select(RefreshTokenDB).where(
-            RefreshTokenDB.expires_at < now
-        )
-        expired_tokens = db.exec(statement).all()
-        
-        deleted_count = len(expired_tokens)
-        for token in expired_tokens:
-            db.delete(token)
-
+        statement = delete(RefreshTokenDB).where(col(RefreshTokenDB.expires_at) < now)
+        result = db.exec(statement)
         db.commit()
-        return deleted_count
+        return result.rowcount
     
     @staticmethod
     def count_active_tokens_for_user(db: Session, user_uuid: str) -> int:
