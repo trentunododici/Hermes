@@ -109,10 +109,12 @@ class RefreshTokenRepository:
     
     @staticmethod
     def revoke_oldest_tokens(db: Session, user_uuid: str) -> bool:
-        """Revoke the oldest active token for a user."""
+        """Revoke the oldest active (not revoked, not expired) token for a user."""
+        now = datetime.now(timezone.utc)
         statement = select(RefreshTokenDB).where(
             RefreshTokenDB.user_uuid == user_uuid,
-            col(RefreshTokenDB.revoked).is_(False)
+            col(RefreshTokenDB.revoked).is_(False),
+            RefreshTokenDB.expires_at > now
         ).order_by(col(RefreshTokenDB.created_at)).limit(1)
 
         oldest = db.exec(statement).first()

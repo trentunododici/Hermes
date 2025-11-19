@@ -104,39 +104,40 @@ def verify_refresh_token(db: Session, token: str) -> tuple[User, str] | None:
             audience=JWT_AUDIENCE,
             issuer=JWT_ISSUER
         )
-
-        if payload.get("type") != TokenType.REFRESH:
-            return None
-
-        user_uuid: str = payload.get("sub")
-        jti: str = payload.get("jti")
-
-        if not user_uuid or not jti:
-            return None
-
-        # Verify token exists in database and is valid (not revoked, not expired)
-        token_record = RefreshTokenRepository.get_valid_token_by_jti(db, jti)
-        if not token_record:
-            return None
-        
-        # Ensure the DB record belongs to the same user as the JWT subject
-        if token_record.user_uuid != user_uuid:
-            return None
-
-        # Verify token hash matches (prevents token theft from DB)
-        token_hash_calculated = hash_token(token)
-        if token_record.token_hash != token_hash_calculated:
-            return None
-
-        # Verify user exists and is active
-        user = get_user_by_uuid(db, user_uuid)
-        if not user or user.disabled:
-            return None
-
-        return user, jti
-
     except InvalidTokenError:
         return None
+
+    if payload.get("type") != TokenType.REFRESH:
+        return None
+
+    user_uuid: str = payload.get("sub")
+    jti: str = payload.get("jti")
+
+    if not user_uuid or not jti:
+        return None
+
+    # Verify token exists in database and is valid (not revoked, not expired)
+    token_record = RefreshTokenRepository.get_valid_token_by_jti(db, jti)
+    if not token_record:
+        return None
+        
+    # Ensure the DB record belongs to the same user as the JWT subject
+    if token_record.user_uuid != user_uuid:
+        return None
+
+    # Verify token hash matches (prevents token theft from DB)
+    token_hash_calculated = hash_token(token)
+    if token_record.token_hash != token_hash_calculated:
+        return None
+
+    # Verify user exists and is active
+    user = get_user_by_uuid(db, user_uuid)
+    if not user or user.disabled:
+        return None
+
+    return user, jti
+
+    
     
 def create_and_store_tokens(
         db: Session,
