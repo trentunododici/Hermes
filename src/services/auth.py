@@ -41,6 +41,9 @@ def authenticate_user(db: Session, username: str, password: str) -> User | None:
     # If we reach here, password was correct, but user might still not exist
     if not user_with_password:
         return None
+    
+    if user_with_password.disabled:
+        return None
 
     # Convert UserInDB to User using model_validate (excludes hashed_password automatically)
     return User.model_validate(user_with_password, from_attributes=True)

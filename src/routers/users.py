@@ -13,7 +13,12 @@ router = APIRouter(prefix="/api/v1/users", tags=["users"])
             response_model=User,
             summary="Get Current User",
             description="Retrieve information about the currently authenticated user.",
-            response_description="Details of the current user")
+            response_description="Details of the current user",
+            responses={
+                status.HTTP_403_FORBIDDEN: {"description": "Inactive user"},
+                status.HTTP_401_UNAUTHORIZED: {"description": "Could not validate credentials"}
+            }
+)
 async def read_users_me(current_user: Annotated[User, Depends(get_current_active_user)]) -> User:
     return current_user
 

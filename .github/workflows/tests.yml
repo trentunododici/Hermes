@@ -1,0 +1,54 @@
+name: Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: hermes_test
+          POSTGRES_USER: hermes_user
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+
+      - name: Set up Python
+        run: uv python install 3.12
+
+      - name: Install dependencies
+        run: uv sync --dev
+
+      - name: Run tests
+        env:
+          ENV: testing
+          DATABASE_URL: postgresql://hermes_user:password@localhost:5433/hermes_test
+          SECRET_KEY: test_secret_key_ci
+          REFRESH_SECRET_KEY: test_refresh_secret_key_ci
+          ALGORITHM: HS256
+          ACCESS_TOKEN_EXPIRE_MINUTES: "15"
+          REFRESH_TOKEN_EXPIRE_DAYS: "7"
+          MAX_ACTIVE_TOKENS_PER_USER: "3"
+        run: uv run pytest tests/ -v --tb=short
+
+      - name: Run linter
+        run: uv run ruff check src/ tests/
