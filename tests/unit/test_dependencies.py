@@ -1,6 +1,6 @@
 """Unit tests for dependencies (src/utils/dependencies.py)."""
 import pytest
-from unittest.mock import Mock, patch, AsyncMock
+from unittest.mock import Mock, patch
 from datetime import datetime, timezone
 from fastapi import HTTPException
 

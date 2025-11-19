@@ -1,5 +1,4 @@
 """Unit tests for security utilities (src/utils/security.py)."""
-import pytest
 
 from src.utils.security import get_password_hash, verify_password, hash_token
 

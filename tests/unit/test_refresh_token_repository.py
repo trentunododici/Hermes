@@ -1,6 +1,5 @@
 """Unit tests for refresh token repository (src/repositories/refresh_token_repository.py)."""
-import pytest
-from unittest.mock import Mock, MagicMock, patch
+from unittest.mock import Mock, patch
 from datetime import datetime, timezone, timedelta
 
 from src.repositories.refresh_token_repository import RefreshTokenRepository
@@ -106,7 +105,7 @@ class TestRefreshTokenRepositoryRevoke:
             revoked=False
         )
 
-        result = RefreshTokenRepository.revoke(mock_db, token)
+        RefreshTokenRepository.revoke(mock_db, token)
 
         assert token.revoked is True
         assert token.revoked_at is not None

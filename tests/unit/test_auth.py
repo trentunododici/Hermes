@@ -9,7 +9,6 @@ from src.services.auth import create_access_token, create_refresh_token, authent
 from src.config import SECRET_KEY, REFRESH_SECRET_KEY, ALGORITHM, JWT_ISSUER, JWT_AUDIENCE
 from src.schemas.auth import TokenType
 from src.schemas.user import User, UserInDB
-from src.database.models import RefreshTokenDB
 
 
 class TestCreateAccessToken:
@@ -158,7 +157,7 @@ class TestCreateRefreshToken:
         expires = timedelta(days=1)
         token, _, expire = create_refresh_token(data={"sub": "user-uuid"}, expires_delta=expires)
 
-        payload = jwt.decode(token, REFRESH_SECRET_KEY, algorithms=[ALGORITHM], audience=JWT_AUDIENCE)
+        jwt.decode(token, REFRESH_SECRET_KEY, algorithms=[ALGORITHM], audience=JWT_AUDIENCE)
 
         # Expiration should be approximately 1 day from now
         expected_exp = datetime.now(timezone.utc) + expires

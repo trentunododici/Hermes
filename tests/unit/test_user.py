@@ -1,6 +1,5 @@
 """Unit tests for user service (src/services/user.py)."""
-import pytest
-from unittest.mock import Mock, patch, MagicMock
+from unittest.mock import Mock, patch
 from datetime import datetime, timezone
 from sqlalchemy.exc import IntegrityError
 
@@ -240,7 +239,7 @@ class TestDeactivateUser:
         )
         mock_repo.update.return_value = user
 
-        result = deactivate_user(mock_db, user)
+        deactivate_user(mock_db, user)
 
         assert user.disabled is True
         mock_repo.update.assert_called_once_with(mock_db, user)

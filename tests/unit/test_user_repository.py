@@ -1,6 +1,5 @@
 """Unit tests for user repository (src/repositories/user_repository.py)."""
-import pytest
-from unittest.mock import Mock, MagicMock
+from unittest.mock import Mock
 from datetime import datetime, timezone
 
 from src.repositories.user_repository import UserRepository
