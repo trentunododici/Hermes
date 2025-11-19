@@ -17,6 +17,7 @@ router = APIRouter(prefix="/api/v1/auth", tags=["auth"])
 @router.post("/token",
             response_model=Token,
             summary="Get access token",
+            response_description="Returns access token, refresh token, and token type",
             description="Obtain an access token by providing valid user credentials."
                         "Primarily intended for internal use and Swagger UI documentation."
                         "Mobile clients should use the /login endpoint instead.",
@@ -50,8 +51,8 @@ async def get_access_token(
             status_code=status.HTTP_200_OK,
             response_model=AuthResponse,
             summary="User Login",
-            description="Authenticate user and obtain an access token.",
-            response_description="Returns access token and user UUID",
+            description="Authenticate user and obtain an access token and refresh token.",
+            response_description="Returns access token, refresh token, and user UUID",
             responses={
                 status.HTTP_401_UNAUTHORIZED: {"description": "Incorrect username or password"},
                 status.HTTP_429_TOO_MANY_REQUESTS: {"description": "Rate limit exceeded"}
@@ -94,7 +95,7 @@ async def login(
     response_model=AuthResponse,
     summary="User Registration",
     description="Register a new user in the system.",
-    response_description="Returns access token and user UUID",
+    response_description="Returns access token, refresh token, and user UUID",
     responses={
         status.HTTP_409_CONFLICT: {
             "description": "User already exists"

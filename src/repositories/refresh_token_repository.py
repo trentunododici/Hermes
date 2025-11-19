@@ -19,7 +19,7 @@ class RefreshTokenRepository:
         now = datetime.now(timezone.utc)
         statement = select(RefreshTokenDB).where(
             RefreshTokenDB.jti == jti,
-            RefreshTokenDB.revoked == False,
+            col(RefreshTokenDB.revoked).is_(False),
             RefreshTokenDB.expires_at > now
         )
         return db.exec(statement).first()
@@ -65,7 +65,7 @@ class RefreshTokenRepository:
         """Revoke all refresh tokens for a specific user. Returns the count of revoked tokens."""
         statement = select(RefreshTokenDB).where(
             RefreshTokenDB.user_uuid == user_uuid,
-            RefreshTokenDB.revoked == False
+            col(RefreshTokenDB.revoked).is_(False)
         )
         tokens = db.exec(statement).all()
         
@@ -100,7 +100,7 @@ class RefreshTokenRepository:
         now = datetime.now(timezone.utc)
         statement = select(func.count()).select_from(RefreshTokenDB).where(
             RefreshTokenDB.user_uuid == user_uuid,
-            RefreshTokenDB.revoked == False,
+            col(RefreshTokenDB.revoked).is_(False),
             RefreshTokenDB.expires_at > now
         )
 
@@ -112,7 +112,7 @@ class RefreshTokenRepository:
         """Revoke the oldest active token for a user."""
         statement = select(RefreshTokenDB).where(
             RefreshTokenDB.user_uuid == user_uuid,
-            RefreshTokenDB.revoked == False
+            col(RefreshTokenDB.revoked).is_(False)
         ).order_by(col(RefreshTokenDB.created_at)).limit(1)
 
         oldest = db.exec(statement).first()

@@ -27,7 +27,7 @@ def add_user(
         first_name: str,
         last_name: str,
         password: str,
-        created_at: datetime = datetime.now(timezone.utc)
+        created_at: datetime | None = None
     ) -> UserDB | None:
     """
     Create a new user in the database.
@@ -37,6 +37,9 @@ def add_user(
     preventing race conditions through database-level enforcement.
     """
     try:
+        if created_at is None:
+            created_at = datetime.now(timezone.utc)
+
         hashed_password = get_password_hash(password)
         db_user = UserDB(
             username=username,

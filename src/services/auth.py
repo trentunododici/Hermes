@@ -3,7 +3,7 @@ import uuid
 import jwt
 from jwt.exceptions import InvalidTokenError
 from sqlmodel import Session
-from src.config import REFRESH_SECRET_KEY, SECRET_KEY, ALGORITHM, JWT_ISSUER, JWT_AUDIENCE, MAX_ACTIVE_TOKENS_PER_USER
+from src.config import ACCESS_TOKEN_EXPIRE_MINUTES, REFRESH_SECRET_KEY, SECRET_KEY, ALGORITHM, JWT_ISSUER, JWT_AUDIENCE, MAX_ACTIVE_TOKENS_PER_USER, REFRESH_TOKEN_EXPIRE_DAYS
 from src.schemas.auth import TokenType
 from src.utils.security import verify_password, hash_token
 from src.utils.validators import normalize_username
@@ -51,7 +51,7 @@ def create_access_token(data: dict, expires_delta: timedelta | None = None) -> s
     if expires_delta:
         expire = now + expires_delta
     else:
-        expire = now + timedelta(minutes=15)
+        expire = now + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     to_encode.update({
         "type": TokenType.ACCESS,
         "exp": expire,
@@ -68,7 +68,7 @@ def create_refresh_token(data: dict, expires_delta: timedelta | None = None) -> 
     if expires_delta:
         expire = now + expires_delta
     else:
-        expire = now + timedelta(days=7)
+        expire = now + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
 
     jti = str(uuid.uuid4())
     to_encode.update({

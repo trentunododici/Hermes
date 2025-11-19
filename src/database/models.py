@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel, Field, Index
 from typing import Optional
 import uuid as uuid_lib
 
@@ -40,10 +40,13 @@ class RefreshTokenDB(SQLModel, table=True):
     Represents the structure of the table in the database.
     """
     __tablename__ = "refresh_tokens"  # type: ignore[assignment]:
-
+    __table_args__ = (
+          Index('ix_refresh_tokens_user_revoked', 'user_uuid', 'revoked'),
+    )
+    
     id: Optional[int] = Field(default=None, primary_key=True)
     jti: str = Field(unique=True, index=True, max_length=36)
-    token_hash: str = Field(default=None, index=True, max_length=64)
+    token_hash: str = Field(index=True, max_length=64)
     user_uuid: str = Field(
         foreign_key="users.uuid", 
         index=True,

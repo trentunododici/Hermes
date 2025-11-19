@@ -25,14 +25,10 @@ async def read_users_me(current_user: Annotated[User, Depends(get_current_active
 async def deactivate_current_user(
     current_user: Annotated[User, Depends(get_current_active_user)],
     session: Annotated[Session, Depends(get_db)],
-    permanent: bool = False #Query parameter to indicate permanent deletion
+    permanent: bool = False # Query parameter to indicate permanent deletion
 ) -> dict:
     user_db = UserRepository.get_by_uuid(session, current_user.uuid)
-    if not user_db:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User not found"
-        )
+    assert user_db is not None # Guaranteed by get_current_active_user
 
     if permanent:
         # Hard delete
@@ -41,6 +37,5 @@ async def deactivate_current_user(
             status_code=status.HTTP_501_NOT_IMPLEMENTED,
             detail="Permanent deletion is not implemented yet"
         )
-    else:
-        deactivate_user(session=session, user=user_db)
-        return {"message": "User account deactivated successfully"}
+    deactivate_user(session=session, user=user_db)
+    return {"message": "User account deactivated successfully"}
